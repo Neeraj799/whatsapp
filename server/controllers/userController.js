@@ -128,8 +128,16 @@ const updateProfile = async (req, res) => {
   }
 };
 
-const checkAuth = (req, res) => {
-  res.json({ success: true, user: req.user });
+const checkAuth = async (req, res) => {
+  const userId = req.user.userId;
+
+  const user = await User.findById(userId);
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  return res.json({ success: true, user: user });
 };
 
 export { signup, login, updateProfile, checkAuth };

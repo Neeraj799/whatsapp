@@ -1,11 +1,11 @@
 import { io, userSocketMap } from "../index.js";
 import Message from "../models/Message.js";
 import User from "../models/User.js";
-import connectCloudinary from "../utils/cloudinary.js";
+import cloudinary from "../utils/cloudinary.js";
 
-const getUsersForSidebar = async () => {
+const getUsersForSidebar = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user.userId;
     const filteredUsers = await User.find({ _id: { $ne: userId } }).select(
       "-password"
     );
@@ -36,14 +36,20 @@ const getUsersForSidebar = async () => {
 const getMessages = async (req, res) => {
   try {
     const { id: selectedUserId } = req.params;
-    const id = req.user._id;
+    console.log("user", selectedUserId);
+
+    const id = req.user.userId;
 
     const messages = await Message.find({
       $or: [
         { senderId: id, receiverId: selectedUserId },
         { senderId: selectedUserId, receiverId: id },
       ],
-    });
+    })
+      .populate("senderId") // populate all fields from User
+      .populate("receiverId");
+
+    console.log("messages", messages);
 
     await Message.updateMany(
       { senderId: selectedUserId, receiverId: id },
@@ -74,14 +80,17 @@ const markMessageAsSeen = async (req, res) => {
 
 const sendMessage = async (req, res) => {
   try {
-    const { text, image } = req.body;
     const receiverId = req.params.id;
-    const senderId = req.user._id;
+    const senderId = req.user.userId;
+
+    const { text, image } = req.body;
 
     let imageUrl;
 
     if (image) {
-      const uploadResponse = await connectCloudinary.uploader.upload(image);
+      const uploadResponse = await cloudinary.uploader.upload(image, {
+        folder: "chat_images", // optional
+      });
       imageUrl = uploadResponse.secure_url;
     }
 
@@ -92,15 +101,16 @@ const sendMessage = async (req, res) => {
       image: imageUrl,
     });
 
-    //Emit the new message to the receiver's socket
+    // Emit socket
     const receiverSocketId = userSocketMap[receiverId];
     if (receiverSocketId) {
       io.to(receiverSocketId).emit("newMessage", newMessage);
     }
 
+    await newMessage.save();
     return res.json({ success: true, newMessage });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).json({ success: false, message: error.message });
   }
 };

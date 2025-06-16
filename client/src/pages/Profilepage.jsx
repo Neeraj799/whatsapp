@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import assets from "../assets/assets";
 import { AuthContext } from "../../context/AuthContext";
@@ -13,19 +13,15 @@ const Profilepage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedImg) {
-      await updateProfile({ fullName: name, bio });
-      navigate("/");
-      return;
+    const formData = new FormData();
+    formData.append("fullName", name);
+    formData.append("bio", bio);
+    if (selectedImg) {
+      formData.append("profilePic", selectedImg);
     }
 
-    const reader = new FileReader();
-    reader.readAsDataURL(selectedImg);
-    reader.onload = async () => {
-      const image = reader.result;
-      await updateProfile({ profilePic: image, fullName: name, bio });
-      navigate("/");
-    };
+    await updateProfile(formData); // adjust this call in your API wrapper
+    navigate("/");
   };
 
   return (
@@ -37,7 +33,7 @@ const Profilepage = () => {
         >
           <h3 className="text-lg ">Profile details</h3>
           <label
-            for="avatar"
+            htmlFor="avatar"
             className="flex items-center gap-3 cursor-pointer"
           >
             <input
@@ -85,7 +81,7 @@ const Profilepage = () => {
           className={`max-w-44 aspect-square rounded-full mx-10 max-sm:mt-10 ${
             selectedImg && "rounded-full"
           }`}
-          src={assets.logo_icon}
+          src={authUser?.profilePic || assets.logo_icon}
           alt=""
         />
       </div>

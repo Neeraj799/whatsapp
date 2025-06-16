@@ -14,7 +14,7 @@ const router = express.Router();
 
 router.post("/signup", signup);
 router.post("/login", login);
-router.get("/check", checkAuth);
+router.get("/check", protectRoute, checkAuth);
 router.patch("/update-profile", protectRoute, upload.any(), updateProfile);
 
 export default router;
