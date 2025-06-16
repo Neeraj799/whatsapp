@@ -13,7 +13,7 @@ function App() {
   return (
     <>
       <ToastContainer />
-      <div className="bg-[url('./src/assets/bgImage.svg')] bg-contain">
+      <div className="bg-[url('/bgImage.svg')] bg-contain">
         <Routes>
           <Route
             path="/"
