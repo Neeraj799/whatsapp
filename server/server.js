@@ -4,8 +4,8 @@ import mongoose from "mongoose";
 import cors from "cors";
 import http from "http";
 import envConfig from "./config/envConfig.js";
-import authRoutes from "../server/routes/userRoutes.js";
-import messageRoutes from "../server/routes/messageRoutes.js";
+import authRoutes from "./routes/userRoutes.js";
+import messageRoutes from "./routes/messageRoutes.js";
 import { Server } from "socket.io";
 
 dotenv.config();

@@ -1,4 +1,4 @@
-import { io, userSocketMap } from "../index.js";
+import { io, userSocketMap } from "../server.js";
 import Message from "../models/Message.js";
 import User from "../models/User.js";
 import cloudinary from "../utils/cloudinary.js";
