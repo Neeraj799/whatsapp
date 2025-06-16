@@ -19,8 +19,6 @@ mongoose
     console.log("MongoDB connection error", err);
   });
 
-const PORT = process.env.PORT || 4800;
-
 //Create express app and HTTP server
 const app = express();
 const server = http.createServer(app);
@@ -59,6 +57,12 @@ app.use(cors());
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 
-server.listen(PORT, () => {
-  console.log("Server is running on PORT", PORT);
-});
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 4800;
+  server.listen(PORT, () => {
+    console.log("Server is running on PORT", PORT);
+  });
+}
+
+//Export server for vercel
+export default server;
